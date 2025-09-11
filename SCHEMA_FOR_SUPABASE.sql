@@ -1,152 +1,223 @@
--- 🚀 AI Mind OS - Supabase Schema Activation
--- Copy and paste this ENTIRE content into Supabase SQL Editor and click RUN
+-- =====================================================
+-- AI Mind OS — Supabase Schema (Fixed + RLS-safe)
+-- Run as 'postgres' in Supabase SQL editor
+-- =====================================================
 
--- Converted to PostgreSQL / Supabase compatible SQL
--- Creates tables following Supabase best practices (primary key bigint identity, RLS enabled)
--- 1) profiles linked to auth.users
-CREATE TABLE IF NOT EXISTS public.profiles (
-  id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id uuid UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  username text UNIQUE,
+-- 0) Helpers for idempotent policy creation
+create or replace function public._create_policy_if_not_exists(
+  p_name text, p_table regclass, p_cmd text, p_qual text, p_with text default null
+) returns void language plpgsql as $$
+begin
+  perform 1 from pg_policies where schemaname = split_part(p_table::text,'.',1)
+    and tablename = split_part(p_table::text,'.',2)
+    and policyname = p_name;
+  if not found then
+    execute format(
+      'create policy %I on %s for %s using (%s)%s',
+      p_name, p_table, p_cmd, p_qual,
+      case when p_with is null then '' else format(' with check (%s)', p_with) end
+    );
+  end if;
+end $$;
+
+-- 1) Core tables -------------------------------------------------------------
+
+create table if not exists public.profiles (
+  id bigserial primary key,
+  user_id uuid unique references auth.users(id) on delete cascade,
+  username text unique,
   display_name text,
-  profile_flags jsonb DEFAULT '{}'::jsonb,
-  xp_multiplier numeric(3,2) DEFAULT 1.00,
-  total_xp integer DEFAULT 0,
-  current_streak integer DEFAULT 0,
-  max_streak integer DEFAULT 0,
-  last_activity_date timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now()
+  profile_flags jsonb default '{}'::jsonb,
+  xp_multiplier numeric(3,2) default 1.00 check (xp_multiplier > 0),
+  total_xp integer default 0,
+  current_streak integer default 0,
+  max_streak integer default 0,
+  last_activity_date timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+alter table public.profiles enable row level security;
 
-CREATE TABLE IF NOT EXISTS public.progress_tracking (
-  id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-  lesson_id text NOT NULL,
-  status text DEFAULT 'not_started' CHECK (status IN ('not_started','in_progress','completed')),
-  completion_percentage integer DEFAULT 0,
-  xp_earned integer DEFAULT 0,
-  completed_at timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT uq_progress_tracking UNIQUE(user_id, lesson_id)
+create table if not exists public.progress_tracking (
+  id bigserial primary key,
+  user_id uuid references auth.users(id) on delete cascade,
+  lesson_id text not null,
+  status text default 'not_started' check (status in ('not_started','in_progress','completed')),
+  completion_percentage integer default 0,
+  xp_earned integer default 0,
+  completed_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  constraint uq_progress_tracking unique (user_id, lesson_id)
 );
-ALTER TABLE public.progress_tracking ENABLE ROW LEVEL SECURITY;
+alter table public.progress_tracking enable row level security;
 
-CREATE TABLE IF NOT EXISTS public.analytics_events (
-  id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-  event_type text NOT NULL,
-  event_data jsonb DEFAULT '{}'::jsonb,
+create table if not exists public.analytics_events (
+  id bigserial primary key,
+  user_id uuid references auth.users(id) on delete cascade,
+  event_type text not null,
+  event_data jsonb default '{}'::jsonb,
   session_id text,
-  timestamp timestamp with time zone DEFAULT now(),
-  created_at timestamp with time zone DEFAULT now()
+  "timestamp" timestamptz default now(),
+  created_at timestamptz default now()
 );
-ALTER TABLE public.analytics_events ENABLE ROW LEVEL SECURITY;
+alter table public.analytics_events enable row level security;
 
-CREATE TABLE IF NOT EXISTS public.achievements (
-  id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-  achievement_type text NOT NULL,
-  achievement_data jsonb DEFAULT '{}'::jsonb,
-  earned_at timestamp with time zone DEFAULT now(),
-  created_at timestamp with time zone DEFAULT now()
+create table if not exists public.achievements (
+  id bigserial primary key,
+  user_id uuid references auth.users(id) on delete cascade,
+  achievement_type text not null,
+  achievement_data jsonb default '{}'::jsonb,
+  earned_at timestamptz default now(),
+  created_at timestamptz default now()
 );
-ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
+alter table public.achievements enable row level security;
 
--- Indexes for FKs
-CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
-CREATE INDEX IF NOT EXISTS idx_progress_tracking_user_id ON public.progress_tracking(user_id);
-CREATE INDEX IF NOT EXISTS idx_analytics_events_user_id ON public.analytics_events(user_id);
-CREATE INDEX IF NOT EXISTS idx_achievements_user_id ON public.achievements(user_id);
+-- Indexes
+create index if not exists idx_profiles_user_id on public.profiles(user_id);
+create index if not exists idx_progress_tracking_user_id on public.progress_tracking(user_id);
+create index if not exists idx_analytics_events_user_id on public.analytics_events(user_id);
+create index if not exists idx_achievements_user_id on public.achievements(user_id);
 
--- Public leaderboard view
-CREATE OR REPLACE VIEW public.leaderboard AS
-SELECT 
-    COALESCE(p.display_name, p.username, 'Anonymous') as player_name,
-    p.username,
-    p.total_xp,
-    p.current_streak,
-    p.max_streak,
-    COUNT(pt.id) as completed_lessons
-FROM public.profiles p
-LEFT JOIN public.progress_tracking pt ON p.user_id = pt.user_id AND pt.status = 'completed'
-GROUP BY p.id, p.display_name, p.username, p.total_xp, p.current_streak, p.max_streak
-ORDER BY p.total_xp DESC, p.current_streak DESC
-LIMIT 100;
+-- 2) Leaderboard view (no RLS on views) -------------------------------------
 
--- Function for updating streaks and XP
-CREATE OR REPLACE FUNCTION public.update_user_xp_and_streak(
-    p_user_id uuid,
-    p_xp_earned integer
-) RETURNS void AS $$
-DECLARE
-    current_date_val date := CURRENT_DATE;
-    last_activity date;
-    current_streak_val integer;
-    max_streak_val integer;
-BEGIN
-    -- Get current streak and last activity
-    SELECT last_activity_date, current_streak, max_streak 
-    INTO last_activity, current_streak_val, max_streak_val
-    FROM public.profiles 
-    WHERE user_id = p_user_id;
-    
-    -- Update streak logic
-    IF last_activity IS NULL OR last_activity < current_date_val - INTERVAL '1 day' THEN
-        -- First activity or broken streak
-        current_streak_val := 1;
-    ELSIF last_activity = current_date_val - INTERVAL '1 day' THEN
-        -- Consecutive day
-        current_streak_val := current_streak_val + 1;
-    END IF;
-    
-    -- Update max streak if needed
-    IF current_streak_val > max_streak_val THEN
-        max_streak_val := current_streak_val;
-    END IF;
-    
-    -- Update user profile
-    UPDATE public.profiles 
-    SET 
-        total_xp = total_xp + (p_xp_earned * xp_multiplier),
-        current_streak = current_streak_val,
-        max_streak = max_streak_val,
-        last_activity_date = current_date_val,
-        updated_at = now()
-    WHERE user_id = p_user_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+create or replace view public.leaderboard as
+select
+  coalesce(p.display_name, p.username, 'Anonymous') as player_name,
+  p.username,
+  p.total_xp,
+  p.current_streak,
+  p.max_streak,
+  count(pt.id) as completed_lessons
+from public.profiles p
+left join public.progress_tracking pt
+  on p.user_id = pt.user_id and pt.status = 'completed'
+group by p.id, p.display_name, p.username, p.total_xp, p.current_streak, p.max_streak
+order by p.total_xp desc, p.current_streak desc
+limit 100;
 
--- Create default RLS policies (users can only access their own data)
-CREATE POLICY "Users can view own profile" ON public.profiles
-    FOR SELECT USING (auth.uid() = user_id);
+-- Grant read access to the view (RLS does not apply to views; base-table RLS still applies)
+grant usage on schema public to anon, authenticated;
+grant select on table public.leaderboard to anon, authenticated;
 
-CREATE POLICY "Users can update own profile" ON public.profiles
-    FOR UPDATE USING (auth.uid() = user_id);
+-- NOTE: Because base tables have RLS, rows visible via the view still depend on the caller's row access.
+-- For a truly public leaderboard, see the optional section at the end.
 
-CREATE POLICY "Users can insert own profile" ON public.profiles
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- 3) Streak/XP function (fixed type cast) -----------------------------------
 
-CREATE POLICY "Users can view own progress" ON public.progress_tracking
-    FOR SELECT USING (auth.uid() = user_id);
+create or replace function public.update_user_xp_and_streak(
+  p_user_id uuid,
+  p_xp_earned integer
+) returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_date_val date := current_date;
+  last_activity date;
+  current_streak_val integer := 0;
+  max_streak_val integer := 0;
+begin
+  select
+    (last_activity_date::date),
+    coalesce(current_streak, 0),
+    coalesce(max_streak, 0)
+  into last_activity, current_streak_val, max_streak_val
+  from public.profiles
+  where user_id = p_user_id;
 
-CREATE POLICY "Users can update own progress" ON public.progress_tracking
-    FOR ALL USING (auth.uid() = user_id);
+  -- Update streak logic
+  if last_activity is null then
+    current_streak_val := 1;
+  elsif last_activity = current_date_val then
+    -- already counted today; keep streak as-is
+    current_streak_val := current_streak_val;
+  elsif last_activity = (current_date_val - 1) then
+    current_streak_val := current_streak_val + 1;
+  else
+    current_streak_val := 1;
+  end if;
 
-CREATE POLICY "Users can view own analytics" ON public.analytics_events
-    FOR SELECT USING (auth.uid() = user_id);
+  if current_streak_val > max_streak_val then
+    max_streak_val := current_streak_val;
+  end if;
 
-CREATE POLICY "Users can insert own analytics" ON public.analytics_events
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+  update public.profiles
+  set
+    total_xp = total_xp + (p_xp_earned * xp_multiplier)::int, -- FIX: cast numeric → int
+    current_streak = current_streak_val,
+    max_streak = max_streak_val,
+    last_activity_date = current_date_val::timestamptz,
+    updated_at = now()
+  where user_id = p_user_id;
+end;
+$$;
 
-CREATE POLICY "Users can view own achievements" ON public.achievements
-    FOR SELECT USING (auth.uid() = user_id);
+-- 4) RLS Policies (idempotent) ----------------------------------------------
 
-CREATE POLICY "Users can insert own achievements" ON public.achievements
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- profiles
+select public._create_policy_if_not_exists(
+  'Users can view own profile', 'public.profiles', 'select', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can update own profile', 'public.profiles', 'update', 'auth.uid() = user_id', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can insert own profile', 'public.profiles', 'insert', 'true', 'auth.uid() = user_id'
+);
 
--- Leaderboard is public read-only
-CREATE POLICY "Leaderboard is public" ON public.leaderboard
-    FOR SELECT TO authenticated, anon USING (true);
+-- progress_tracking
+select public._create_policy_if_not_exists(
+  'Users can view own progress', 'public.progress_tracking', 'select', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can insert own progress', 'public.progress_tracking', 'insert', 'true', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can update own progress', 'public.progress_tracking', 'update', 'auth.uid() = user_id', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can delete own progress', 'public.progress_tracking', 'delete', 'auth.uid() = user_id'
+);
+
+-- analytics_events
+select public._create_policy_if_not_exists(
+  'Users can view own analytics', 'public.analytics_events', 'select', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can insert own analytics', 'public.analytics_events', 'insert', 'true', 'auth.uid() = user_id'
+);
+
+-- achievements
+select public._create_policy_if_not_exists(
+  'Users can view own achievements', 'public.achievements', 'select', 'auth.uid() = user_id'
+);
+select public._create_policy_if_not_exists(
+  'Users can insert own achievements', 'public.achievements', 'insert', 'true', 'auth.uid() = user_id'
+);
+
+-- (REMOVED) ❌ "Leaderboard is public" RLS on a view — not allowed, causes error.
+
+-- 5) Optional: updated_at auto-touch (nice-to-have)
+do $$
+begin
+  if not exists (select 1 from pg_proc where proname = 'trigger_set_timestamp') then
+    create function public.trigger_set_timestamp() returns trigger language plpgsql as $f$
+    begin
+      new.updated_at = now();
+      return new;
+    end $f$;
+  end if;
+end $$;
+
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname = 'set_timestamp_profiles') then
+    create trigger set_timestamp_profiles before update on public.profiles
+    for each row execute function public.trigger_set_timestamp();
+  end if;
+  if not exists (select 1 from pg_trigger where tgname = 'set_timestamp_progress') then
+    create trigger set_timestamp_progress before update on public.progress_tracking
+    for each row execute function public.trigger_set_timestamp();
+  end if;
+end $$;
