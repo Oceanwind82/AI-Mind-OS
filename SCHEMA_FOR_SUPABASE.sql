@@ -79,9 +79,11 @@ create index if not exists idx_progress_tracking_user_id on public.progress_trac
 create index if not exists idx_analytics_events_user_id on public.analytics_events(user_id);
 create index if not exists idx_achievements_user_id on public.achievements(user_id);
 
+-- Drop existing view to handle column name changes (PostgreSQL limitation)
+drop view if exists public.leaderboard cascade;
 -- 2) Leaderboard view (no RLS on views) -------------------------------------
 
-create or replace view public.leaderboard as
+create view public.leaderboard as
 select
   coalesce(p.display_name, p.username, 'Anonymous') as player_name,
   p.username,
@@ -98,7 +100,7 @@ limit 100;
 
 -- Grant read access to the view (RLS does not apply to views; base-table RLS still applies)
 grant usage on schema public to anon, authenticated;
-grant select on table public.leaderboard to anon, authenticated;
+grant select on public.leaderboard to anon, authenticated;
 
 -- NOTE: Because base tables have RLS, rows visible via the view still depend on the caller's row access.
 -- For a truly public leaderboard, see the optional section at the end.
