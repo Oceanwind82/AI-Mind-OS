@@ -48,3 +48,4 @@ playwright/.cache/
 
 # TypeScript
 *.tsbuildinfo
+tsconfig.tsbuildinfo
