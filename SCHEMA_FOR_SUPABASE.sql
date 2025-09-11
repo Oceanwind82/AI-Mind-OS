@@ -64,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_achievements_user_id ON public.achievements(user_
 -- Public leaderboard view
 CREATE OR REPLACE VIEW public.leaderboard AS
 SELECT 
-    COALESCE(p.display_name, p.username, 'Anonymous') as display_name,
+    COALESCE(p.display_name, p.username, 'Anonymous') as player_name,
     p.username,
     p.total_xp,
     p.current_streak,
