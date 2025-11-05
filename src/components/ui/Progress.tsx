@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 
 // Inline utility function to avoid import issues
-function cn(...inputs: any[]) {
+function cn(...inputs: unknown[]) {
   return clsx(inputs);
 }
 
@@ -103,7 +103,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         >
           <div
             className={cn(
-              progressIndicatorVariants({ color: color as any, animated }),
+              progressIndicatorVariants({ color, animated }),
               "h-full transition-all duration-500 ease-out"
             )}
             data-progress-width={`${Math.min(100, Math.max(0, percentage))}%`}
