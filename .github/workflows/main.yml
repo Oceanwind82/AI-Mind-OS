@@ -1,4 +1,4 @@
-name: Vercel Production Deploy
+name: AI Mind OS Deploy
 
 on:
   push:
@@ -31,68 +31,74 @@ jobs:
             echo "❌ No package.json in repo root or aimindos/"; exit 1
           fi
           echo "APP_DIR=$APP_DIR" >> $GITHUB_OUTPUT
-          echo "Using APP_DIR=$APP_DIR"
+          echo "✅ Using APP_DIR=$APP_DIR"
 
-      - name: Sanity print (paths & scripts)
+      - name: Print debug info
         shell: bash
         run: |
           set -euo pipefail
-          echo "PWD=$(pwd)"
+          echo "🔍 PWD=$(pwd)"
+          echo "🔍 Directory contents:"
           ls -la
-          echo "----"
+          echo "🔍 App directory contents:"
           ls -la "${{ steps.detect.outputs.APP_DIR }}"
-          echo "---- package.json scripts ----"
-          cat "${{ steps.detect.outputs.APP_DIR }}/package.json" | sed -n '/"scripts"/,/"keywords"/p' || true
+          echo "🔍 Package.json scripts:"
+          cat "${{ steps.detect.outputs.APP_DIR }}/package.json" | jq '.scripts' || true
 
-      - name: Verify required secrets
+      - name: Verify secrets
         shell: bash
         run: |
           set -euo pipefail
+          missing=0
           for k in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
             v="${!k:-}"
             if [ -z "$v" ]; then
-              echo "❌ Missing required secret: $k"; exit 1
+              echo "❌ Missing secret: $k"
+              missing=1
+            else
+              echo "✅ Secret $k is present"
             fi
           done
-          echo "✅ All Vercel secrets are present."
+          if [ $missing -eq 1 ]; then exit 1; fi
 
-      - name: Setup Node 20
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: ${{ steps.detect.outputs.APP_DIR }}/package-lock.json
 
-      - name: Install deps
-        working-directory: ${{ steps.detect.outputs.APP_DIR }}
-        run: npm ci --no-audit --no-fund
-
-      - name: Show versions
+      - name: Install dependencies
         working-directory: ${{ steps.detect.outputs.APP_DIR }}
         run: |
-          node -v
-          npm -v
-          npx --yes next --version || true
-          npx --yes vercel@latest --version || true
+          echo "📦 Installing dependencies..."
+          npm ci --no-audit --no-fund
 
-      - name: Build (capture logs)
-        id: build
+      - name: Show environment
         working-directory: ${{ steps.detect.outputs.APP_DIR }}
         run: |
-          set -o pipefail
+          echo "🔧 Node: $(node -v)"
+          echo "🔧 npm: $(npm -v)"
+          echo "🔧 Next.js: $(npx --yes next --version || echo 'not found')"
+
+      - name: Build application
+        working-directory: ${{ steps.detect.outputs.APP_DIR }}
+        run: |
+          echo "🔨 Building application..."
           CI=1 npm run build 2>&1 | tee build.log
 
-      - name: Deploy with Vercel CLI (prebuilt)
+      - name: Deploy to Vercel
         if: success()
         working-directory: ${{ steps.detect.outputs.APP_DIR }}
         run: |
+          echo "🚀 Deploying to Vercel..."
           npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           npx vercel build --prod --token="$VERCEL_TOKEN"
           npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
-      - name: Upload build log on failure
+      - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
+          name: build-logs
           path: ${{ steps.detect.outputs.APP_DIR }}/build.log
