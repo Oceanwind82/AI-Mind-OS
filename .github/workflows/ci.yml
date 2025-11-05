@@ -1,15 +1,40 @@
-name: Deploy to Vercel (Simple)
+name: Deploy to Vercel (Prod)
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
     steps:
-      - name: Trigger Vercel Deploy
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (fail-fast)
+        run: npm run build
+
+      - name: Deploy with Vercel CLI
         run: |
-          echo "Triggering Vercel deployment..."
-          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_1jsaKG6U1Vbeg6PQiUA0gHyl2PLx/CLt77BI1EeUY8y1IA0nsT3yf"
+          npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          npx vercel build --prod --token=$VERCEL_TOKEN
+          npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
