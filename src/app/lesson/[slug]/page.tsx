@@ -1,7 +1,8 @@
-export default function LessonPage({ params }: { params: { slug: string } }) {
+export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   return (
     <div className="p-8">
-      <h1>Lesson: {params.slug}</h1>
+      <h1>Lesson: {slug}</h1>
       <p>Lesson content coming soon...</p>
     </div>
   )
