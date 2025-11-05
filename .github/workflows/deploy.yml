@@ -1,4 +1,4 @@
-name: Deploy to Vercel (Prod)
+name: Deploy to Vercel
 
 on:
   push:
@@ -27,13 +27,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build (fail-fast)
+      - name: Build application
         run: npm run build
 
-      - name: Deploy with Vercel CLI
+      - name: Deploy to Vercel
         run: |
           npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
           npx vercel build --prod --token=$VERCEL_TOKEN
