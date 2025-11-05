@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
+import { checkBotId } from 'botid/server';
 
 const TEMP_USER_ID = '550e8400-e29b-41d4-a716-446655440001';
 
 export async function POST(request: NextRequest) {
+  // Check if the request is from a bot
+  const verification = await checkBotId();
+  
+  if (verification.isBot) {
+    return NextResponse.json(
+      { error: 'Bot detected. Access denied.' },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { lessonId, status, score } = body;
