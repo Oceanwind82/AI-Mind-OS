@@ -5,7 +5,8 @@ test("lesson renders", async ({ page }) => {
   page.on("console", m => console.log(`[${m.type()}]`, m.text()));
 
   await page.goto("/lesson/getting-started");     // a static page you control
-  await expect(page.getByText(/Step\s*1/i)).toBeVisible();
+  await expect(page.getByText("Lesson: getting-started")).toBeVisible();
+  await expect(page.getByText("Lesson content coming soon...")).toBeVisible();
 });
 
 test("no single-child errors on home", async ({ page }) => {
