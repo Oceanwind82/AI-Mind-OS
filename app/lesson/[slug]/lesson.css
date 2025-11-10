@@ -1,0 +1,118 @@
+/* Lesson Page Styles */
+.markdown-content h1 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.markdown-content p {
+  color: #374151;
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+
+.markdown-content ul {
+  margin-bottom: 1rem;
+}
+
+.markdown-content li {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: #dbeafe;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.markdown-content blockquote p {
+  color: #1e3a8a;
+  margin-bottom: 0;
+}
+
+.markdown-content code {
+  background-color: #f3f4f6;
+  color: #111827;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.markdown-content pre {
+  background-color: #111827;
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  color: #f9fafb;
+  padding: 0;
+}
+
+/* Highlight.js Theme Override */
+.hljs {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  padding: 1.5rem !important;
+  border-radius: 0.5rem !important;
+}
+
+/* Custom lesson elements */
+.lesson-tip {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lesson-warning {
+  background-color: #fef2f2;
+  border: 1px solid #f87171;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lesson-success {
+  background-color: #f0fdf4;
+  border: 1px solid #22c55e;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}

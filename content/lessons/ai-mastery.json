@@ -1,0 +1,27 @@
+{
+  "id": "ai-mastery",
+  "title": "AI Mastery: Advanced Techniques",
+  "description": "Master advanced AI concepts and become a power user",
+  "duration": "25 min",
+  "difficulty": "Intermediate",
+  "xp": 200,
+  "sections": [
+    {
+      "id": "prompt-engineering",
+      "title": "The Art of Prompt Engineering",
+      "content": "# The Art of Prompt Engineering\n\nPrompt engineering is the skill of crafting inputs that get AI systems to produce exactly what you want.\n\n## The CLEAR Framework\n\n### **C**ontext\nProvide background information:\n```\n\"You are an expert marketing strategist for SaaS companies...\"\n```\n\n### **L**ength\nSpecify desired output length:\n```\n\"Write a 200-word summary...\"\n\"List 5 bullet points...\"\n```\n\n### **E**xamples\nShow what you want:\n```\n\"Format like this example: \n• Problem: [issue]\n• Solution: [fix]\n• Result: [outcome]\"\n```\n\n### **A**udience\nDefine who this is for:\n```\n\"Explain this for a 5th grader...\"\n\"Write for C-level executives...\"\n```\n\n### **R**ole\nAssign a persona:\n```\n\"Act as a senior developer...\"\n\"Respond as a customer service expert...\"\n```\n\n> 🎯 **Master Tip**: The more specific your prompt, the better your results. Think of AI as a brilliant intern who needs clear instructions."
+    },
+    {
+      "id": "advanced-techniques",
+      "title": "Advanced AI Techniques",
+      "content": "# Advanced AI Techniques\n\n## Chain of Thought Prompting\nMake AI show its reasoning:\n\n**Instead of**: \"Solve this math problem: 23 × 47\"\n\n**Try**: \"Solve this step by step, showing your work: 23 × 47\"\n\n## Few-Shot Learning\nTeach by example:\n\n```\nClassify these emails as spam or not spam:\n\nEmail: \"Free money now!\" → Spam\nEmail: \"Meeting at 3pm\" → Not Spam\nEmail: \"Click here to win!\" → Spam\nEmail: \"Your invoice is attached\" → ?\n```\n\n## Temperature Control\n- **Low temperature (0.1-0.3)**: More focused, consistent outputs\n- **High temperature (0.7-1.0)**: More creative, varied outputs\n\n## System Prompts\nSet the AI's behavior from the start:\n```\nSystem: You are a helpful coding assistant who always provides working code examples and explains complex concepts simply.\n\nUser: How do I create a React component?\n```\n\n### Pro Techniques\n1. **Iterative Refinement**: Start broad, then narrow down\n2. **Negative Prompting**: Tell AI what NOT to do\n3. **Multi-turn Conversations**: Build on previous responses\n4. **Format Specifications**: JSON, tables, specific structures"
+    },
+    {
+      "id": "power-user-tools",
+      "title": "Power User AI Tools",
+      "content": "# Power User AI Tools\n\n## Content Creation Stack\n- **ChatGPT**: Writing, brainstorming, problem-solving\n- **Claude**: Long-form content, analysis, research\n- **Midjourney**: Image generation and design\n- **Runway**: Video creation and editing\n\n## Developer Tools\n- **GitHub Copilot**: Code completion and generation\n- **Cursor**: AI-powered code editor\n- **Replit**: AI-assisted programming environment\n- **Vercel v0**: UI component generation\n\n## Business & Productivity\n- **Notion AI**: Document enhancement and automation\n- **Zapier**: Workflow automation with AI\n- **Loom AI**: Video summaries and insights\n- **Grammarly**: Advanced writing assistance\n\n## Research & Analysis\n- **Perplexity**: AI-powered search and research\n- **Semantic Scholar**: Academic paper analysis\n- **Consensus**: Scientific research synthesis\n- **Elicit**: Research question answering\n\n## The AI-Powered Workflow\n\n### Morning Routine\n1. **ChatGPT**: Plan your day and prioritize tasks\n2. **Perplexity**: Research industry updates\n3. **Notion AI**: Generate meeting agendas\n\n### Work Sessions\n1. **GitHub Copilot**: Accelerate coding\n2. **Claude**: Draft documents and emails\n3. **Midjourney**: Create visual assets\n\n### End of Day\n1. **Loom AI**: Summarize recorded meetings\n2. **ChatGPT**: Reflect on accomplishments\n3. **Zapier**: Automate follow-up tasks\n\n> 🚀 **Power User Secret**: The best AI practitioners don't just use one tool - they orchestrate multiple AI systems to create workflows that are 10x more efficient than traditional methods."
+    }
+  ],
+  "nextLesson": "prompt-power",
+  "tags": ["advanced", "prompt-engineering", "tools", "workflow"]
+}

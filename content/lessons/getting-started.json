@@ -1,0 +1,27 @@
+{
+  "id": "getting-started",
+  "title": "Getting Started with AI",
+  "description": "Your first steps into the world of artificial intelligence",
+  "duration": "15 min",
+  "difficulty": "Beginner",
+  "xp": 100,
+  "sections": [
+    {
+      "id": "intro",
+      "title": "What is AI?",
+      "content": "# What is AI?\n\nArtificial Intelligence (AI) is the simulation of human intelligence in machines that are programmed to think and learn like humans.\n\n## Key Concepts:\n\n- **Machine Learning**: AI systems that can learn from data\n- **Neural Networks**: Computing systems inspired by biological neural networks\n- **Deep Learning**: Machine learning using deep neural networks\n\n> 💡 **Pro Tip**: Think of AI as teaching computers to recognize patterns, just like how you learned to recognize faces or voices."
+    },
+    {
+      "id": "types",
+      "title": "Types of AI",
+      "content": "# Types of AI\n\nThere are several categories of AI, each with different capabilities:\n\n## 1. Narrow AI (Weak AI)\n- Designed for specific tasks\n- Examples: Siri, Netflix recommendations, spam filters\n- **This is what we use today**\n\n## 2. General AI (Strong AI)\n- Human-level intelligence across all domains\n- Can understand, learn, and apply knowledge like humans\n- **Still theoretical - doesn't exist yet**\n\n## 3. Super AI\n- Exceeds human intelligence in all aspects\n- **Pure science fiction for now**\n\n### Real-World Examples:\n- 🎬 **Netflix**: Recommends shows you'll love\n- 🚗 **Tesla**: Self-driving capabilities\n- 📱 **Your Phone**: Voice recognition and predictive text"
+    },
+    {
+      "id": "applications",
+      "title": "AI in Your Daily Life",
+      "content": "# AI in Your Daily Life\n\nYou're already using AI more than you realize!\n\n## Morning Routine\n- ☕ **Smart Home**: Alexa adjusts your thermostat\n- 📱 **Phone**: Predictive text while messaging\n- 🎵 **Spotify**: AI-curated playlists\n\n## Work & Learning\n- 💼 **Email**: Smart filters and priority sorting\n- 🔍 **Google**: Search results ranked by AI\n- 📊 **Excel**: Auto-complete and data insights\n\n## Evening Entertainment\n- 🎬 **Netflix**: \"Because you watched...\"\n- 🛒 **Amazon**: Product recommendations\n- 📸 **Instagram**: Photo tagging and filters\n\n### The Big Picture\nAI isn't replacing humans - it's **augmenting** our capabilities. The goal is to make you more productive, creative, and informed.\n\n**Next up**: We'll dive into how YOU can harness AI tools to supercharge your work and creativity!"
+    }
+  ],
+  "nextLesson": "ai-mastery",
+  "tags": ["beginner", "introduction", "fundamentals"]
+}
