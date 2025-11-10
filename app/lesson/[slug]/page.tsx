@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { notFound } from 'next/navigation';
+import AIChat from '../../../components/AIChat';
 import './lesson.css';
 
 interface LessonSection {
@@ -125,7 +126,16 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                       </ReactMarkdown>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                    <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
+                      <AIChat
+                        lessonContext={{
+                          lessonTitle: lessonData.title,
+                          sectionTitle: section.title,
+                          sectionContent: section.content,
+                          lessonSlug: slug,
+                        }}
+                        sectionId={section.id}
+                      />
                       <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
                         <span>Mark as Complete</span>
                         <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

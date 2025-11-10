@@ -116,3 +116,12 @@
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
+
+/* Animation delays for loading dots */
+.animate-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+}
