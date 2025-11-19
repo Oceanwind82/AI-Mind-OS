@@ -100,13 +100,14 @@ export function PulseLine({ direction = 'horizontal', color = 'var(--neural-cyan
     },
     animate: {
       [direction === 'horizontal' ? 'scaleX' : 'scaleY']: [0, 1, 0],
-      opacity: [0, 1, 0],
-      transition: {
-        duration,
-        repeat: Infinity,
-        ease: 'easeInOut'
-      }
+      opacity: [0, 1, 0]
     }
+  }
+
+  const transitionProps = {
+    duration,
+    repeat: Infinity,
+    ease: 'easeInOut' as const
   }
 
   return (
@@ -120,6 +121,7 @@ export function PulseLine({ direction = 'horizontal', color = 'var(--neural-cyan
       variants={lineVariants}
       initial="initial"
       animate="animate"
+      transition={transitionProps}
     />
   )
 }
@@ -267,7 +269,7 @@ export function NeuralSpinner({ size = 40, className = '' }: { size?: number; cl
   return (
     <div 
       className={`relative neural-spinner ${className}`}
-      style={{ '--spinner-size': `${size}px` } as React.CSSProperties}
+      data-size={size}
     >
       <motion.div
         className="absolute inset-0 rounded-full border-2 border-neural-cyan/30 neural-spinner-outer"

@@ -21,7 +21,7 @@ interface PricingCardProps {
 }
 
 export function PricingCard({
-  tier,
+  tier: _tier,
   title,
   price,
   description,
