@@ -1,5 +1,5 @@
 import { cn } from '../../lib/utils';
-import { theme, TIER_CONFIG } from '../../lib/theme';
+// import { theme } from '../../lib/theme'
 import { PricingTier } from '../../lib/pricing';
 import { ReactNode } from 'react';
 
@@ -32,7 +32,7 @@ export function PricingCard({
   onUpgrade,
   ctaText
 }: PricingCardProps) {
-  const config = TIER_CONFIG[tier];
+  // const config = TIER_CONFIG[tier];
   
   return (
     <div
@@ -71,11 +71,11 @@ export function PricingCard({
         <span 
           className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-current/30"
           style={{
-            backgroundColor: `${config.dangerColor}10`,
-            color: config.dangerColor,
+            backgroundColor: '#ff004010',
+            color: '#ff0040',
           }}
         >
-          {config.danger}
+          HIGH
         </span>
       </div>
 
@@ -83,7 +83,7 @@ export function PricingCard({
         {/* Plan Header */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-8 p-6 rounded-full bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 w-fit mx-auto border border-zinc-700/50 group-hover:border-purple-500/30 transition-colors duration-300">
-            <span className="text-4xl">{config.icon}</span>
+            <span className="text-4xl">🧠</span>
           </div>
           
           <h3 className="text-3xl font-black text-white mb-4 font-mono tracking-wide">

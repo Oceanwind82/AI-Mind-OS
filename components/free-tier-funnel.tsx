@@ -10,7 +10,7 @@ interface FreeTierEngagementProps {
   onDismiss: () => void;
 }
 
-export function FreeTierEngagement({ trigger, onUpgrade, onDismiss }: FreeTierEngagementProps) {
+export function FreeTierEngagement({ trigger: _trigger, onUpgrade, onDismiss }: FreeTierEngagementProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [showFullModal, setShowFullModal] = useState(false);
   

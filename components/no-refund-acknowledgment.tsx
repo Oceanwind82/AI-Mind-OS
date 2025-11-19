@@ -18,9 +18,9 @@ export function NoRefundAcknowledgment({
   onConfirm, 
   onCancel, 
   planName, 
-  planPrice,
-  billingCycle = 'monthly'
+  planPrice
 }: NoRefundAcknowledgmentProps) {
+  const _billingCycle = 'monthly' // This could be dynamic
   const [hasReadPolicy, setHasReadPolicy] = useState(false);
   const [hasUnderstood, setHasUnderstood] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);

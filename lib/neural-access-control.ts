@@ -125,7 +125,7 @@ export async function getSuggestedNeuralUpgrade(userId: string): Promise<{
 }> {
   try {
     const neuralState = await getUserNeuralState(userId);
-    const currentPlan = PRICING_PLANS[neuralState.neuralTier];
+        // const _currentPlan = user.plan || 'free'
     
     // Define upgrade path with neural terminology
     const neuralUpgradePath: Record<PricingTier, PricingTier | null> = {

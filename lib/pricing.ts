@@ -251,7 +251,7 @@ export interface UserSubscription {
   currentPeriodEnd: Date;
   status: 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due' | 'trialing' | 'unpaid';
   cancelAtPeriodEnd: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Usage tracking interface
