@@ -15,9 +15,9 @@ test("lesson renders with rich content", async ({ page }) => {
   await expect(page.getByText("15 min")).toBeVisible();
   await expect(page.getByText("100 XP")).toBeVisible();
   
-  // Check lesson navigation
-  await expect(page.getByText("What is AI?")).toBeVisible();
-  await expect(page.getByText("Types of AI")).toBeVisible();
+  // Check lesson navigation (be more specific)
+  await expect(page.getByRole('link', { name: /What is AI?/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Types of AI/ })).toBeVisible();
   
   // Check actual content
   await expect(page.getByText("Artificial Intelligence (AI) is the simulation")).toBeVisible();

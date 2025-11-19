@@ -12,12 +12,15 @@
     "test:e2e": "NEXT_PUBLIC_E2E=true playwright test"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^8.3.0",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.81.0",
     "ai": "^5.0.91",
     "botid": "^1.5.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.553.0",
     "next": "^15.5.2",
     "openai": "^6.8.1",
     "react": "^19.1.1",
@@ -26,6 +29,7 @@
     "rehype-highlight": "^7.0.2",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
+    "stripe": "^19.3.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.1.5"
   },
