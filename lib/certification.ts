@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-loaded OpenAI client to avoid build-time initialization
+let openaiClient: OpenAI | null = null;
+function getOpenAIClient() {
+  if (!openaiClient && process.env.OPENAI_API_KEY) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiClient;
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -63,6 +70,10 @@ export async function generateExamQuestions(
   questionCount: number = 10
 ): Promise<ExamQuestion[]> {
   try {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      throw new Error('OpenAI client not configured');
+    }
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -166,6 +177,10 @@ async function gradeEssayQuestion(
   answer: string
 ): Promise<{ points: number; feedback: string }> {
   try {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      throw new Error('OpenAI client not configured');
+    }
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
