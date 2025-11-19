@@ -1,4 +1,4 @@
-import { MastermindOS } from '../components/onboarding/mastermind-os'
+import { MastermindOS } from '../../components/onboarding/mastermind-os'
 
 export default function MastermindPage() {
   return (
