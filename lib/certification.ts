@@ -12,10 +12,17 @@ function getOpenAIClient() {
   return openaiClient;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-loaded Supabase client to avoid build-time initialization
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+function getSupabaseClient() {
+  if (!supabaseClient && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+  }
+  return supabaseClient;
+}
 
 export interface CertificationExam {
   id: string;
@@ -237,6 +244,10 @@ export async function createCertificate(
   };
 
   // Store in database
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    throw new Error('Supabase client not configured');
+  }
   await supabase
     .from('certificates')
     .insert([certificate]);
@@ -247,6 +258,10 @@ export async function createCertificate(
 // Verify certificate
 export async function verifyCertificate(credentialId: string): Promise<Certificate | null> {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      throw new Error('Supabase client not configured');
+    }
     const { data, error } = await supabase
       .from('certificates')
       .select('*')
@@ -264,6 +279,10 @@ export async function verifyCertificate(credentialId: string): Promise<Certifica
 // Get user certificates
 export async function getUserCertificates(userId: string): Promise<Certificate[]> {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      throw new Error('Supabase client not configured');
+    }
     const { data, error } = await supabase
       .from('certificates')
       .select('*')
